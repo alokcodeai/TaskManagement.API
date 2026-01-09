@@ -11,24 +11,68 @@ namespace TaskManagement.Web.Controllers
         {
             _httpClient = factory.CreateClient("TaskApi");
         }
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Index(string? searchText, string? status)
         {
             try
             {
                 var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<TaskViewModel>>>("Tasks");
+                var tasks = new List<TaskViewModel>();
 
                 if (response != null && response.Success && response.Data != null)
                 {
-                    return View(response.Data);
+                    tasks = System.Text.Json.JsonSerializer.Deserialize<List<TaskViewModel>>(
+                        System.Text.Json.JsonSerializer.Serialize(response.Data))!;
                 }
 
-                return View(new List<TaskViewModel>());
+                // 🔍 SEARCH BY TEXT
+                if (!string.IsNullOrWhiteSpace(searchText))
+                {
+                    tasks = tasks.Where(x =>
+                            (x.Title != null && x.Title.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (x.Description != null && x.Description.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                            (x.Status != null && x.Status.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                        ).ToList();
+                }
+
+                // 🎯 FILTER BY STATUS
+                if (!string.IsNullOrWhiteSpace(status))
+                {
+                    tasks = tasks
+                        .Where(x => x.Status != null && x.Status.Equals(status, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+
+                ViewBag.SearchText = searchText;
+                ViewBag.Status = status;
+
+                return View(tasks);
             }
             catch
             {
                 return View(new List<TaskViewModel>());
             }
         }
+
+
+        //public async Task<IActionResult> Index()
+        //{
+        //    try
+        //    {
+        //        var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<TaskViewModel>>>("Tasks");
+
+        //        if (response != null && response.Success && response.Data != null)
+        //        {
+        //            return View(response.Data);
+        //        }
+
+        //        return View(new List<TaskViewModel>());
+        //    }
+        //    catch
+        //    {
+        //        return View(new List<TaskViewModel>());
+        //    }
+        //}
         public async Task<IActionResult> Edit(int id)
         {
             var response = await _httpClient
