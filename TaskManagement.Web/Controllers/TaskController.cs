@@ -54,25 +54,6 @@ namespace TaskManagement.Web.Controllers
             }
         }
 
-
-        //public async Task<IActionResult> Index()
-        //{
-        //    try
-        //    {
-        //        var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<TaskViewModel>>>("Tasks");
-
-        //        if (response != null && response.Success && response.Data != null)
-        //        {
-        //            return View(response.Data);
-        //        }
-
-        //        return View(new List<TaskViewModel>());
-        //    }
-        //    catch
-        //    {
-        //        return View(new List<TaskViewModel>());
-        //    }
-        //}
         public async Task<IActionResult> Edit(int id)
         {
             var response = await _httpClient
