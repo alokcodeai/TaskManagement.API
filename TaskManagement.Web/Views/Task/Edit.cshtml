@@ -1,0 +1,59 @@
+﻿@model TaskManagement.Web.Models.TaskViewModel
+@{
+    ViewData["Title"] = "Edit";
+}
+
+
+<div class="container mt-4">
+    <h3>Edit Task</h3>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Title</label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea asp-for="Description" class="form-control"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select asp-for="Status" class="form-select">
+                <option>Open</option>
+                <option>InProgress</option>
+                <option>Completed</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Due Date</label>
+            <input asp-for="DueDate" type="date" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Remarks</label>
+            <input asp-for="Remarks" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">CreatedBy</label>
+            <input asp-for="CreatedBy" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">UpdatedBy</label>
+            <input asp-for="UpdatedBy" class="form-control" />
+        </div>
+
+
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <div>
+        <a asp-action="Index" class="btn btn-success m-5">Back to List</a>
+    </div>
+</div>

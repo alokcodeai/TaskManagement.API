@@ -1,0 +1,78 @@
+﻿@model List<TaskManagement.Web.Models.TaskViewModel>
+
+@{
+    ViewData["Title"] = "Task Management";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary">📋 Task Management</h3>
+        <a asp-action="Create" class="btn btn-success">
+            ➕ Create Task
+        </a>
+    </div>
+
+    <table class="table table-hover table-bordered shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Due Date</th>
+                <th>Remark</th>
+                <th>Created On</th>
+                <th>Updated On</th>
+                <th>Creaeted By</th>
+                <th>Updated By</th>
+                <th style="width:160px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.Title</td>
+                        <td>@item.Description</td>
+                        <td>
+                            <span class="badge 
+                                @(item.Status == "Completed" ? "bg-success" :
+                                  item.Status == "InProgress" ? "bg-warning text-dark" :
+                                  "bg-secondary")">
+                                @item.Status
+                            </span>
+                        </td>
+
+                        <td>@item.DueDate?.ToString("dd-MMM-yyyy")</td>
+                        <td>@item.Remarks</td>
+                        <td>@item.CreatedOn?.ToString("dd-MM-yyyy")</td>
+                        <td>@item.UpdatedOn?.ToString("dd-MM-yyyy")</td>
+                        <td>@item.CreatedBy</td>
+                        <td>@item.UpdatedBy</td>
+
+
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-primary">Edit</a>
+
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Are you sure?');">
+                                Delete
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4" class="text-center text-muted">
+                        No tasks found
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
