@@ -1,7 +1,21 @@
+﻿using System.Net.Http.Headers;
+using System.Net.Http;
+using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.Extensions.Options;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+
+builder.Services.AddSession(options =>
+{
+    //options.IdleTimeout = TimeSpan.FromMinutes(1); // ⏱ 1 minute
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 
 builder.Services.AddHttpClient("TaskApi", client =>
 {
@@ -22,12 +36,25 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+app.UseSession();
 app.UseRouting();
 
-app.UseAuthorization();
+app.Use(async (context, next) =>
+{
+    var path = context.Request.Path.Value?.ToLower();
+
+    if (!path.Contains("/account") &&
+        context.Session.GetString("token") == null)
+    {
+        context.Response.Redirect("/Account/Login");
+        return;
+    }
+    await next();
+});
+
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Account}/{action=Login}/{id?}");
 
 app.Run();

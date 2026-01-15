@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,7 @@ namespace TaskManagement.API.Controllers
             _context = context;
         }
 
-
-
+        [Authorize]
         [HttpGet]
         public async Task<ApiResponse> GetAllTask()
         {
@@ -51,7 +51,7 @@ namespace TaskManagement.API.Controllers
                 return response;
             }
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ApiResponse> GetTaskById(int id)
         {
@@ -87,6 +87,7 @@ namespace TaskManagement.API.Controllers
 
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ApiResponse> CreateTask(Models.Task task)
         {
@@ -121,6 +122,7 @@ namespace TaskManagement.API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<ApiResponse> UpdateTask(int id, Models.Task task)
         {
@@ -176,12 +178,14 @@ namespace TaskManagement.API.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ApiResponse> DeleteTask(int id)
         {
             ApiResponse response = new ApiResponse();
             try
             {
+                
                 var task = _context.Tasks.Find(id);
                 if (task == null)
                 {

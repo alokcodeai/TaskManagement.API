@@ -15,10 +15,13 @@ public partial class TaskDbContext : DbContext
     {
     }
 
+    public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<Task> Tasks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=LAPTOP-KM8CH2O9;Database=TaskManagementDB;user id=sa;password=1234;TrustServerCertificate=True");
+    { 
+        optionsBuilder.UseSqlServer("Server=LAPTOP-KM8CH2O9;Database=TaskManagementDB;user id=sa;password=1234;TrustServerCertificate=True");
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,6 +56,20 @@ public partial class TaskDbContext : DbContext
             entity.Property(e => e.UpdatedOn)
                 .HasColumnType("datetime")
                 .HasColumnName("updatedOn");
+        });
+
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PK__Users__3214EC076E751D83");
+
+            entity.HasIndex(e => e.UserName, "UQ__Users__C9F284567A125A85").IsUnique();
+
+            entity.Property(e => e.CreatedOn)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Email).HasMaxLength(150);
+            entity.Property(e => e.Role).HasMaxLength(50);
+            entity.Property(e => e.UserName).HasMaxLength(100);
         });
 
         OnModelCreatingPartial(modelBuilder);

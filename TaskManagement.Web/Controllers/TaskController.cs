@@ -1,23 +1,49 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using System.Net;
+using System.Net.Http.Headers;
 using TaskManagement.Web.Models;
 
 namespace TaskManagement.Web.Controllers
 {
     public class TaskController : Controller
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _factory;
+        private HttpClient _httpClient;
 
         public TaskController(IHttpClientFactory factory)
         {
-            _httpClient = factory.CreateClient("TaskApi");
+            _factory = factory;
+          
         }
 
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            _httpClient = _factory.CreateClient("TaskApi");
+
+            var token = HttpContext.Session.GetString("token");
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            base.OnActionExecuting(context);
+        }
         public async Task<IActionResult> Index(string? searchText, string? status)
         {
             try
             {
                 var response = await _httpClient.GetFromJsonAsync<ApiResponse<List<TaskViewModel>>>("Tasks");
                 var tasks = new List<TaskViewModel>();
+
+                if (response.StatusCode == 401)
+                {
+                    HttpContext.Session.Clear();
+                    return RedirectToAction("Login", "Account");
+                }
+
 
                 if (response != null && response.Success && response.Data != null)
                 {
@@ -92,6 +118,17 @@ namespace TaskManagement.Web.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
+            var role = HttpContext.Session.GetString("role");
+
+            if (role != "Admin")
+            {
+                TempData["Error"] = "Only admin can delete the data";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["Error"] = null;
+            }
             await _httpClient.DeleteAsync($"Tasks/{id}");
             return RedirectToAction("Index");
         }
